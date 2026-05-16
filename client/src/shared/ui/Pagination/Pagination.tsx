@@ -19,7 +19,7 @@ export const CustomPagination: FC<CustomPaginationProps> = ({
       value={value}
       onChange={onChange}
       arrows={[{ label: "Предыдущая" }, { label: "Следующая" }]}
-      visibleCount={5}
+      visibleCount={1}
     />
   );
 };

@@ -1,2 +1,2 @@
-export { type User } from "./types/userTypes";
+export type { User, UsersResponse } from "./types/userTypes";
 export { getUsers } from "./api/userApi";

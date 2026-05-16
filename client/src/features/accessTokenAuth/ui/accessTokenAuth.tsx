@@ -7,10 +7,15 @@ import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { getPosts } from "@/entities/posts";
 import { getUsers } from "@/entities/users";
+import { useDataViewer } from "@/shared/lib";
 
 export const AccessTokenAuth = () => {
-  const [token, setToken] = useState<string>("");
   const queryClient = useQueryClient();
+
+  const [token, setToken] = useState<string>("");
+
+  const { setCountItems, setCurrentPagePosts, setCurrentPageUsers } =
+    useDataViewer();
 
   const handleTokenChange = (value: string | null) => {
     setToken(value || "");
@@ -24,18 +29,24 @@ export const AccessTokenAuth = () => {
     }
 
     try {
-      const posts = await getPosts(token);
-      const users = await getUsers(token);
+      const [postsResult, usersResult] = await Promise.all([
+        getPosts(token),
+        getUsers(token),
+      ]);
 
-      queryClient.setQueryData(["posts"], posts);
-      queryClient.setQueryData(["users"], users);
+      queryClient.setQueryData(["posts"], postsResult);
+      queryClient.setQueryData(["users"], usersResult);
 
       localStorage.setItem("accessToken", token);
+
+      setCountItems(10);
+      setCurrentPagePosts(1);
+      setCurrentPageUsers(1);
       return;
     } catch {
       alert("Ошибка при загрузке данных");
-      queryClient.setQueryData(["posts"], []);
-      queryClient.setQueryData(["users"], []);
+      queryClient.setQueryData(["posts"], { data: [], pages: 0 });
+      queryClient.setQueryData(["users"], { data: [], pages: 0 });
       localStorage.setItem("accessToken", "");
     }
   };

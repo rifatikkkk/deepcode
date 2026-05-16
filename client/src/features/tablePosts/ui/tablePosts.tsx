@@ -4,8 +4,9 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Layout } from "@consta/uikit/Layout";
 import type { TableColumn } from "@consta/table/Table";
 
-import type { Post } from "@/entities/posts";
+import { getPosts, type Post, type PostsResponse } from "@/entities/posts";
 import { Pagination, Table } from "@/shared/ui";
+import { useDataViewer } from "@/shared/lib";
 
 const columnsPost: TableColumn<Post>[] = [
   {
@@ -21,17 +22,18 @@ const columnsPost: TableColumn<Post>[] = [
 ];
 
 export const TablePosts = () => {
-  const [page, setPage] = useState(1);
-
   const queryClient = useQueryClient();
-  const [posts, setPosts] = useState<Post[] | undefined>(
+
+  const { countItems, currentPagePosts, setCurrentPagePosts } = useDataViewer();
+
+  const [postsResult, setPostsResult] = useState<PostsResponse | undefined>(
     queryClient.getQueryData(["posts"]),
   );
 
   useEffect(() => {
     const updatePosts = () => {
-      const updatedPosts = queryClient.getQueryData<Post[]>(["posts"]);
-      setPosts(updatedPosts);
+      const updated = queryClient.getQueryData<PostsResponse>(["posts"]);
+      setPostsResult(updated);
     };
 
     const unsubscribe = queryClient.getQueryCache().subscribe(() => {
@@ -39,22 +41,44 @@ export const TablePosts = () => {
     });
 
     updatePosts();
-
     return () => unsubscribe();
   }, [queryClient]);
 
+  const changePage = async (page: number) => {
+    const token = localStorage.getItem("accessToken") as string;
+
+    if (!token || token.trim() === "") {
+      alert("Access token пустой");
+      return;
+    }
+
+    try {
+      const posts = await getPosts(token, page, countItems);
+      queryClient.setQueryData(["posts"], posts);
+
+      setCurrentPagePosts(page);
+      return;
+    } catch {
+      alert("Ошибка при загрузке новой страницы");
+    }
+  };
+
   return (
     <>
-      {!posts || posts.length === 0 ? (
+      {!postsResult?.data || postsResult.data.length === 0 ? (
         <p>Нет данных</p>
       ) : (
         <Layout direction="column" style={{ gap: "10px" }}>
           <Table
             tableKey="posts-table"
-            tableRows={posts}
+            tableRows={postsResult.data}
             tableColumns={columnsPost}
           />
-          <Pagination value={page} countItems={1} onChange={setPage} />
+          <Pagination
+            value={currentPagePosts}
+            countItems={postsResult.pages}
+            onChange={(page) => changePage(page)}
+          />
         </Layout>
       )}
     </>

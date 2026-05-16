@@ -8,7 +8,12 @@ import { useQueryClient } from "@tanstack/react-query";
 const counts: CountItemsType[] = [10, 25, 50];
 
 export const ItemsPerPage = () => {
-  const { countItems, setCountItems } = useDataViewer();
+  const {
+    countItems,
+    setCountItems,
+    setCurrentPagePosts,
+    setCurrentPageUsers,
+  } = useDataViewer();
 
   const queryClient = useQueryClient();
 
@@ -21,15 +26,15 @@ export const ItemsPerPage = () => {
     }
 
     try {
-      setCountItems(count);
-
       const posts = await getPosts(token, 1, count);
       const users = await getUsers(token, 1, count);
 
       queryClient.setQueryData(["posts"], posts);
       queryClient.setQueryData(["users"], users);
 
-      localStorage.setItem("accessToken", token);
+      setCountItems(count);
+      setCurrentPagePosts(1);
+      setCurrentPageUsers(1);
       return;
     } catch {
       alert("Ошибка при загрузке данных");

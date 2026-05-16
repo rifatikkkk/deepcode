@@ -5,3 +5,8 @@ export type User = {
   gender: "male" | "female";
   status: "active" | "inactive";
 };
+
+export type UsersResponse = {
+  data: User[];
+  pages: number;
+};
