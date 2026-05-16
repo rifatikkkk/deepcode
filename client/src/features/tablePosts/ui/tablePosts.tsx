@@ -1,12 +1,11 @@
-import { Pagination, Table } from "@/shared/ui";
+import { useEffect, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
-import { testPosts, type Post } from "../model/seed/seedPosts";
+import { Layout } from "@consta/uikit/Layout";
 import type { TableColumn } from "@consta/table/Table";
-import { useState, type FC } from "react";
 
-type TablePostsProps = {
-  countDispay: number;
-};
+import type { Post } from "@/entities/posts";
+import { Pagination, Table } from "@/shared/ui";
 
 const columnsPost: TableColumn<Post>[] = [
   {
@@ -21,25 +20,43 @@ const columnsPost: TableColumn<Post>[] = [
   },
 ];
 
-export const TablePosts: FC<TablePostsProps> = ({ countDispay }) => {
+export const TablePosts = () => {
   const [page, setPage] = useState(1);
 
-  const startIndex = (page - 1) * countDispay;
-  const endIndex = startIndex + countDispay;
-  const currentPageUsers = testPosts.slice(startIndex, endIndex);
+  const queryClient = useQueryClient();
+  const [posts, setPosts] = useState<Post[] | undefined>(
+    queryClient.getQueryData(["posts"]),
+  );
+
+  useEffect(() => {
+    const updatePosts = () => {
+      const updatedPosts = queryClient.getQueryData<Post[]>(["posts"]);
+      setPosts(updatedPosts);
+    };
+
+    const unsubscribe = queryClient.getQueryCache().subscribe(() => {
+      updatePosts();
+    });
+
+    updatePosts();
+
+    return () => unsubscribe();
+  }, [queryClient]);
+
   return (
     <>
-      <Table
-        tableKey="posts-table"
-        tableRows={currentPageUsers}
-        tableColumns={columnsPost}
-      />
-      <Pagination
-        value={page}
-        countItems={testPosts.length}
-        countDisplay={countDispay}
-        onChange={setPage}
-      />
+      {!posts || posts.length === 0 ? (
+        <p>Нет данных</p>
+      ) : (
+        <Layout direction="column" style={{ gap: "10px" }}>
+          <Table
+            tableKey="posts-table"
+            tableRows={posts}
+            tableColumns={columnsPost}
+          />
+          <Pagination value={page} countItems={1} onChange={setPage} />
+        </Layout>
+      )}
     </>
   );
 };

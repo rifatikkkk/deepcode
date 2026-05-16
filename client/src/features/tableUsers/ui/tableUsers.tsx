@@ -1,17 +1,15 @@
-import { useState, type FC } from "react";
+import { useEffect, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
+import { Layout } from "@consta/uikit/Layout";
 import type { TableColumn } from "@consta/table/Table";
 
-import { testUsers, type User } from "../model/seed/seedUsers";
+import type { User } from "@/entities/users";
 import { Pagination, Table } from "@/shared/ui";
-
-type TableUsersProps = {
-  countDispay: number;
-};
 
 const columnsUser: TableColumn<User>[] = [
   {
-    title: "Имя",
+    title: "Имя Фамилия",
     accessor: "name",
     width: "1fr",
   },
@@ -22,26 +20,43 @@ const columnsUser: TableColumn<User>[] = [
   },
 ];
 
-export const TableUsers: FC<TableUsersProps> = ({ countDispay }) => {
+export const TableUsers = () => {
   const [page, setPage] = useState(1);
 
-  const startIndex = (page - 1) * countDispay;
-  const endIndex = startIndex + countDispay;
-  const currentPageUsers = testUsers.slice(startIndex, endIndex);
+  const queryClient = useQueryClient();
+  const [users, setUsers] = useState<User[] | undefined>(
+    queryClient.getQueryData(["users"]),
+  );
+
+  useEffect(() => {
+    const updateUsers = () => {
+      const updatedUsers = queryClient.getQueryData<User[]>(["users"]);
+      setUsers(updatedUsers);
+    };
+
+    const unsubscribe = queryClient.getQueryCache().subscribe(() => {
+      updateUsers();
+    });
+
+    updateUsers();
+
+    return () => unsubscribe();
+  }, [queryClient]);
 
   return (
     <>
-      <Table
-        tableKey="users-table"
-        tableRows={currentPageUsers}
-        tableColumns={columnsUser}
-      />
-      <Pagination
-        value={page}
-        countItems={testUsers.length}
-        countDisplay={countDispay}
-        onChange={setPage}
-      />
+      {!users || users.length === 0 ? (
+        <p>Нет данных</p>
+      ) : (
+        <Layout direction="column" style={{ gap: "10px" }}>
+          <Table
+            tableKey="users-table"
+            tableRows={users}
+            tableColumns={columnsUser}
+          />
+          <Pagination value={page} countItems={1} onChange={setPage} />
+        </Layout>
+      )}
     </>
   );
 };

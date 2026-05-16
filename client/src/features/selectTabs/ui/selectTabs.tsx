@@ -1,16 +1,11 @@
-import { type FC } from "react";
-
 import { Tab } from "@/shared/ui";
+import { useDataViewer, type TabType } from "@/shared/lib";
 
-const listTab = ["Пользователи", "Посты"];
+const listTab: TabType[] = ["Пользователи", "Посты"];
 
-type SelectTabsProps = {
-  valueTab: string | null;
-  onChangeTab: (value: string | null) => void;
-};
-
-export const SelectTabs: FC<SelectTabsProps> = ({ valueTab, onChangeTab }) => {
+export const SelectTabs = () => {
+  const { valueTab, setValueTab } = useDataViewer();
   return (
-    <Tab valueTab={valueTab} itemsTab={listTab} onChangeTab={onChangeTab} />
+    <Tab valueTab={valueTab} itemsTab={listTab} onChangeTab={setValueTab} />
   );
 };
