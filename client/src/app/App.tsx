@@ -1,5 +1,10 @@
-function App() {
-  return <div>app text</div>;
-}
+import { Suspense } from "react";
+import { AppRouter } from "./providers";
 
-export default App;
+export default function App() {
+  return (
+    <Suspense fallback={<></>}>
+      <AppRouter />
+    </Suspense>
+  );
+}
