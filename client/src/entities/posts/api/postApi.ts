@@ -1,5 +1,5 @@
 import { api } from "@/shared/api";
-import type { PostsResponse } from "../types/postTypes";
+import type { Post, PostsResponse } from "../types/postTypes";
 
 export const getPosts = async (
   token: string,
@@ -21,4 +21,14 @@ export const getPosts = async (
     data: response.data,
     pages,
   };
+};
+
+export const getPostById = async (token: string, id: string) => {
+  const { data } = await api.get<Post>(`/posts/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return data;
 };

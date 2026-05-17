@@ -1,5 +1,5 @@
 import { api } from "@/shared/api";
-import type { UsersResponse } from "../types/userTypes";
+import type { User, UsersResponse } from "../types/userTypes";
 
 export const getUsers = async (
   token: string,
@@ -21,4 +21,14 @@ export const getUsers = async (
     data: response.data,
     pages,
   };
+};
+
+export const getUserById = async (token: string, id: string) => {
+  const { data } = await api.get<User>(`/users/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return data;
 };
