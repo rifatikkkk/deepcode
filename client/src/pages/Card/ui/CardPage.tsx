@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router";
 import { Layout } from "@consta/uikit/Layout";
 import { CardUser } from "@/features/cardUser";
 import { Button } from "@/shared/ui";
+import { CardPost } from "@/features/cardPost";
 
 type CardType = "user" | "post";
 
@@ -15,7 +16,7 @@ const CardPage = () => {
       <Layout>
         <Button label="Назад" onClick={() => navigate(-1)} />
       </Layout>
-      {type === "user" ? <CardUser /> : <div>card post</div>}
+      {type === "user" ? <CardUser /> : <CardPost />}
     </Layout>
   );
 };

@@ -1,2 +1,2 @@
 export type { Post, PostsResponse } from "./types/postTypes";
-export { getPosts } from "./api/postApi";
+export { getPosts, getPostById } from "./api/postApi";

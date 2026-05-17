@@ -3,26 +3,24 @@ import { useQuery } from "@tanstack/react-query";
 
 import { Layout } from "@consta/uikit/Layout";
 import { Text } from "@consta/uikit/Text";
-import { Badge } from "@consta/uikit/Badge";
-import { Avatar } from "@consta/uikit/Avatar";
 
-import { getUserById } from "@/entities/users";
 import { Title, Card } from "@/shared/ui";
+import { getPostById } from "@/entities/posts";
 
-export const CardUser = () => {
+export const CardPost = () => {
   const { id } = useParams<{ id: string }>();
   const token = localStorage.getItem("accessToken") || "";
 
-  const { data: user } = useQuery({
-    queryKey: ["user", id],
-    queryFn: () => getUserById(token, id!),
+  const { data: post } = useQuery({
+    queryKey: ["post", id],
+    queryFn: () => getPostById(token, id!),
     enabled: !!token && !!id,
   });
 
   return (
     <>
-      {user ? (
-        <Card title="Карточка пользователя">
+      {post ? (
+        <Card title="Карточка поста">
           <Layout direction="column" style={{ gap: "12px" }}>
             <Layout
               direction="row"
@@ -37,44 +35,24 @@ export const CardUser = () => {
                 verticalAlign="top"
                 style={{ gap: "5px", alignItems: "center" }}
               >
-                <Avatar name={user.name} />
                 <Text size="xl" weight="bold">
-                  {user.name}
+                  {post.title}
                 </Text>
-                <Badge
-                  minified={true}
-                  status={user.status === "active" ? "success" : "alert"}
-                  label="Статус"
-                />
               </Layout>
 
               <Text size="s" view="ghost">
-                ID: {user.id}
+                ID: {post.user_id}
               </Text>
             </Layout>
 
             <Text size="l" view="secondary">
-              <a
-                style={{ color: "black", textDecoration: "none" }}
-                href={`mailto:${user.email}`}
-              >
-                {user.email}
-              </a>
+              {post.body}
             </Text>
-
-            <Layout direction="row">
-              <Badge
-                form="round"
-                size="m"
-                status={`${user.gender === "male" ? "normal" : "alert"}`}
-                label={`${user.gender === "male" ? "Мужской" : "Женский"}`}
-              />
-            </Layout>
           </Layout>
         </Card>
       ) : (
         <Title size="l" weight="medium">
-          Пользователь не найден
+          Пост не найден
         </Title>
       )}
     </>

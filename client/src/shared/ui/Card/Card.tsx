@@ -2,17 +2,18 @@ import type { FC, ReactNode } from "react";
 import { Layout } from "@consta/uikit/Layout";
 import { Card } from "@consta/uikit/Card";
 
-import { Title } from "../..";
+import { Title } from "..";
 
-type UserCardProps = {
+type CustomCardProps = {
+  title?: string;
   children: ReactNode;
 };
 
-export const UserCard: FC<UserCardProps> = ({ children }) => {
+export const CustomCard: FC<CustomCardProps> = ({ title, children }) => {
   return (
     <Layout direction="column" style={{ gap: "10px" }}>
       <Title size="2xl" weight="bold">
-        Страница пользователя
+        {title}
       </Title>
       <Card
         style={{
